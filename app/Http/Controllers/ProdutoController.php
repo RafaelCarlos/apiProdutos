@@ -3,17 +3,25 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use App\Produto;
 
-class ProdutoController extends Controller
-{
+class ProdutoController extends Controller {
+
+    public function __construct() {
+        //Definir que possa ser acessado qualquer método desse Controller.
+        header('Acess-Control-Allow-Orign: *');
+    }
+
     /**
      * Display a listing of the resource.
      *
      * @return \Illuminate\Http\Response
      */
-    public function index()
-    {
-        //
+    public function index() {
+        //Listando registros do BD.
+
+        $produto = Produto::all();
+        return response()->json(['data' => $produto, 'status' => true]);
     }
 
     /**
@@ -32,9 +40,15 @@ class ProdutoController extends Controller
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
-    public function store(Request $request)
-    {
+    public function store(Request $request) {
         //
+        $dados = $request->all();
+        $produto = Produto::create($dados);
+        if ($produto) {
+            return response()->json(['data' => $produto, 'status' => true]);
+        } else {
+            return response()->json(['data' => 'Erro ao criar o produto', 'status' => false]);
+        }
     }
 
     /**
@@ -43,9 +57,14 @@ class ProdutoController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function show($id)
-    {
-        //
+    public function show($id) {
+        //Buscando produto pelo ID
+        $produto = Produto::find($id);
+        if ($produto) {
+            return response()->json(['data' => $produto, 'status' => true]);
+        } else {
+            return response()->json(['data' => 'Produto não encontrado', 'status' => false]);
+        }
     }
 
     /**
@@ -66,9 +85,17 @@ class ProdutoController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, $id)
-    {
-        //
+    public function update(Request $request, $id) {
+        //Atualizando registro do BD
+        $produto = Produto::find($id);
+        $dados = $request->all();
+
+        if ($produto) {
+            $produto->update($dados);
+            return response()->json(['data' => $produto, 'status' => true]);
+        } else {
+            return response()->json(['data' => 'Erro ao editar produto', 'status' => true]);
+        }
     }
 
     /**
@@ -77,8 +104,16 @@ class ProdutoController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function destroy($id)
-    {
-        //
+    public function destroy($id) {
+        //Deletando registro
+        $produto = Produto::find($id);
+
+        if ($produto) {
+            $produto->delete();
+            return response()->json(['data' => 'Produto removido com sucesso!', 'status' => true]);
+        } else {
+            return response()->json(['data' => 'Não foi possível remover o produto!', 'status' => false]);
+        }
     }
+
 }
