@@ -4,6 +4,8 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Produto;
+//Import utilizado para páginação
+use Illuminate\Pagination\Paginator;
 
 class ProdutoController extends Controller {
 
@@ -17,11 +19,29 @@ class ProdutoController extends Controller {
      *
      * @return \Illuminate\Http\Response
      */
-    public function index() {
+//    public function index() {
+//        //Listando registros do BD.
+//
+//        $produto = Produto::all();
+//        return response()->json(['data' => $produto, 'status' => true]);
+//    }
+    public function index(Request $request) {
         //Listando registros do BD.
+        //Quantidade de registros por página
+        $qtd = $request['qtd'];
 
-        $produto = Produto::all();
-        return response()->json(['data' => $produto, 'status' => true]);
+        //Página que queremos visualizar;
+        $page = $request['page'];
+
+        //Definindo a página atual
+        Paginator::currentPageResolver
+                (function () use ($page) {
+            return $page;
+        });
+
+        $produtos = Produto::paginate($qtd);
+        $produtos = $produtos->appends(Request::capture()->except('page'));
+        return response()->json(['produtos' => $produtos], 200);
     }
 
     /**
